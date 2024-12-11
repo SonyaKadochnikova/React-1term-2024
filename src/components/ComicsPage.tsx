@@ -1,57 +1,52 @@
-import React, { useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import React, { useState } from "react";
 import Card from "./Card";
 import styles from "../styles/ContentPage.module.scss";
 import { textVariables } from "../textVariables";
-import { observer } from "mobx-react-lite";
-import comicStore from "../stores/comicStore.ts"; 
-import debounce from 'lodash.debounce';
 
-const ComicsPage: React.FC = observer(() => {
-  const navigate = useNavigate();
+interface CardItem {
+  imageUrl: string;
+  title: string;
+  description: string;
+}
 
-  useEffect(() => {
-    comicStore.fetchComics();
-  }, []);
+const characters: CardItem[] = [
+  {
+    imageUrl: "https://via.placeholder.com/150",
+    title: "Character 3",
+    description: "Details about Character 3",
+  },
+  {
+    imageUrl: "https://via.placeholder.com/150",
+    title: "Character 3",
+    description: "Details about Character 3",
+  },
+  {
+    imageUrl: "https://via.placeholder.com/150",
+    title: "Character 3",
+    description: "Details about Character 3",
+  },
+];
 
-  const handleCardClick = (id: number) => {
-    navigate(`/comics/${id}`); 
-  };
-
-  const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    comicStore.setSearchTerm(e.target.value); 
-    debouncedFetchComic(e.target.value); 
-  };
+const ComicsPage: React.FC = () => {
+  const [searchTerm, setSearchTerm] = useState("");
 
   const handleSearchButtonClick = () => {
     console.log("Search button clicked");
   };
 
-  const debouncedFetchComic = debounce((searchTerm: string) => {
-    comicStore.fetchComics(5, searchTerm); 
-  }, 3000);
-  
-  if (comicStore.loading) {
-    return <div className={styles.loading}>Загрузка...</div>;
-  }
-
-  if (comicStore.error) {
-    return <div>{comicStore.error}</div>;
-  }
-
   return (
     <div className={styles.container}>
       <div className={styles.header}>
         <h1>{textVariables.comicsPageTitle}</h1>
-        <h3 className={styles.cardCount}>({comicStore.filteredComic.length})</h3>
+        <h3 className={styles.cardCount}>({characters.length})</h3>
       </div>
 
       <div className={styles.searchContainer}>
         <input
           type="text"
           placeholder={textVariables.comicsPlaceholder}
-          value={comicStore.searchTerm}
-          onChange={handleSearchChange}
+          value={searchTerm}
+          onChange={(e) => setSearchTerm(e.target.value)}
           className={styles.input}
         />
         <button onClick={handleSearchButtonClick} className={styles.button}>
@@ -62,18 +57,17 @@ const ComicsPage: React.FC = observer(() => {
       <hr className={styles.divider} />
 
       <div className={styles.cardList}>
-        {comicStore.filteredComic.map((comic) => (
+        {characters.map((character, index) => (
           <Card
-            key={comic.id}
-            imageUrl={`${comic.thumbnail.path}.${comic.thumbnail.extension}`}
-            title={comic.title}
-            description={comic.description}
-            onClick={() => handleCardClick(comic.id)}
+            key={index}
+            imageUrl={character.imageUrl}
+            title={character.title}
+            description={character.description}
           />
         ))}
       </div>
     </div>
   );
-});
+};
 
 export default ComicsPage;
